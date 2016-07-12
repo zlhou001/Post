@@ -1,5 +1,6 @@
 from sklearn.feature_extraction.text import CountVectorizer
 from utils import DATA_DIR, CHART_DIR
+import nltk.stem
 import scipy as sp
 
 import sys, os
@@ -50,3 +51,19 @@ num_features = len(X_train_1.toarray().transpose())
 num_samples = len(X_train_1.toarray())
 new_post_vec = vectorizer_1.transform([new_post])
 fingding(new_post_vec, posts, X_train_1, num_samples)
+
+
+"""Extending the verctorizer with NLTK's stemmer"""
+print("\n*********Extending the verctorizer with NLTK's stemmer*********\n")
+english_stemmer = nltk.stem.SnowballStemmer('english')
+class StemmedCountVectorizer(CountVectorizer):
+    def build_analyzer(self):
+        analyzer = super(StemmedCountVectorizer, self).build_analyzer()
+        return lambda doc:(english_stemmer.stem(w) for w in analyzer(doc))
+                           
+vectorizer_2 = StemmedCountVectorizer(min_df=1, stop_words = 'english')
+X_train_2 = vectorizer_2.fit_transform(posts)
+num_features = len(X_train_2.toarray().transpose())
+num_samples = len(X_train_2.toarray())
+new_post_vec = vectorizer_2.transform([new_post])
+fingding(new_post_vec, posts, X_train_2, num_samples)
