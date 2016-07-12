@@ -1,4 +1,4 @@
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from utils import DATA_DIR, CHART_DIR
 import nltk.stem
 import scipy as sp
@@ -67,3 +67,18 @@ num_features = len(X_train_2.toarray().transpose())
 num_samples = len(X_train_2.toarray())
 new_post_vec = vectorizer_2.transform([new_post])
 fingding(new_post_vec, posts, X_train_2, num_samples)
+
+"""TF-IDF"""
+print("\n*********TF-IDF*********\n")
+english_stemmer = nltk.stem.SnowballStemmer('english')
+class StemmedTfidfVectorizer(TfidfVectorizer):
+    def build_analyzer(self):
+        analyzer = super(StemmedTfidfVectorizer, self).build_analyzer()
+        return lambda doc:(english_stemmer.stem(w) for w in analyzer(doc))
+                           
+vectorizer_3 = StemmedTfidfVectorizer(min_df=1, stop_words = 'english')
+X_train_3 = vectorizer_3.fit_transform(posts)
+num_features = len(X_train_3.toarray().transpose())
+num_samples = len(X_train_3.toarray())
+new_post_vec = vectorizer_3.transform([new_post])
+fingding(new_post_vec, posts, X_train_3, num_samples)
